@@ -33,6 +33,7 @@ void LZW::Compress(const std::string& input, const std::string& output)
             if (dictionaryStoU.find(word) != dictionaryStoU.end()) {
                 fraze = word;
             } else {
+                auto c = (ulong)dictionaryStoU[fraze];
                 WriteBits(output_file, (ulong)dictionaryStoU[fraze], BITS);
                 if (next_code < MAX_CODE) {
                     dictionaryStoU[word] = next_code++;
@@ -40,6 +41,7 @@ void LZW::Compress(const std::string& input, const std::string& output)
                 fraze = character;
             }
         }
+        if (!fraze.empty()) { WriteBits(output_file, (ulong)dictionaryStoU[fraze], BITS); }
         WriteBits(output_file, (uint) END_OF_STREAM, BITS);
         CloseOutputBFile(output_file);
         fclose(input_file);
@@ -74,7 +76,7 @@ void LZW::Decompress(const std::string& input, const std::string& output)
         putc(character, output_file);
 
         std::string word;
-        word += character;
+        word = character;
         std::string entry;
 
         while ((new_code = (uint)ReadBits(input_file, BITS)) != END_OF_STREAM) {
