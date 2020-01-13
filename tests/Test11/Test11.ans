@@ -1,51 +1,67 @@
-<HTML>
-<HEAD>
-<script type="text/javascript" src="bresenham.js"></script>
-<script type="text/javascript" src="borderfill.js"></script>
-<script type="text/javascript" src="3dfuncs.js"></script>
-</HEAD>
-<BODY>
-<canvas id='lab07' width='500' height='500'></canvas>
+<!doctype html>
+
+<html>
+
+<head>
+  <title>Lab02</title>
+  <link rel="stylesheet" href="css/normalize.css">
+</head>
+
+<body>
+<div>
+  <h1>Bresenham's line algorithm</h1>
+  <h2>Hint : Put two arbitrary points in the box</h2>
+</div>
+<div width=800>
+  <canvas id="lab02" height=700 width=1800 class="bordered"></canvas>
 <script>
-	var canvas = document.getElementById("lab07");
-	canvas.oncontextmenu = function() { return false; }
-	var ctx = canvas.getContext("2d", {antialias:false,depth: false});
-	var parray = new Array();
-	var rarray = new Array();
-	var state = 0;
-	var n = 0, r = 0;
-	var x0, y0;
-	var w = canvas.width, h = canvas.height;
-	var maxy = 0, miny = canvas.height;
-			
-	
-	var L={x:100, y:60, z:300};
-	var Pv = {x:50, y:55, z:20};
-	var color = 0x33ffaa;
-	var alpha = 0;
-	var radius = 150;
-	setInterval(function (){
-		alpha += .1;
-		L.x = radius * Math.cos(alpha);
-		L.y = radius * Math.sin(alpha)+40;
-		color3dPlane(L,
-					[{x:10, y:10, z:0}, Pv,
-					{x:15, y:100, z:20}], 
-					color);
-		color3dPlane(L,
-					[{x:110, y:110, z:0}, Pv,
-					{x:15, y:100, z:20}], 
-					color);
-		color3dPlane(L,
-					[{x:110, y:110, z:0}, Pv,
-					{x:100, y:15, z:10}], 
-					color);
-		color3dPlane(L,
-					[{x:100, y:15, z:10}, Pv,
-					{x:10, y:10, z:0}], 
-					color);
-		}, 200);
-			
-</script> 
-</BODY>
-</HTML>
+var canvas = document.getElementById("lab03");
+var ctx = canvas.getContext("2d");
+var gridSize = 5;
+
+var waiting = null;
+var firstX = 0;
+var firstY = 0;
+
+function line(x1, y1, x2, y2) {
+  var eps = 0;
+  var deltaX = x2 - x1;
+  var deltaY = y2 - y1;
+  var dx = deltaX / deltaY;
+  var dy = deltaY / deltaX;
+  var h = Math.abs(deltaX) >= Math.abs(deltaY);
+  var increaseX = (h) ? ((deltaX >= 0) ? 1 : -1) : 0;
+  var increaseY = (h) ? 0 : ((deltaY >= 0) ? 1 : -1);
+  var decreaseX = (h) ? 0 : ((deltaX >= 0) ? 1 : -1);
+  var decreaseY = (h) ? ((deltaY >= 0) ? 1 : -1) : 0;
+  for (var copyX = x1, copyY = y1;
+       (h) ? ((increaseX > 0) ? copyX <= x2 : copyX >= x2) : ((increaseY > 0) ? copyY <= y2 : copyY >= y2);
+       copyX += increaseX, copyY += increaseY) {
+    if (Math.abs(eps) >= 0.5) {
+      eps -= (eps >= 0) ? 1 : -1;
+      copyX += decreaseX;
+      copyY += decreaseY;
+    }
+    ctx.fillRect(copyX * gridSize, copyY * gridSize, gridSize, gridSize);
+    eps += (h) ? dy : dx;
+  }
+}
+
+canvas.addEventListener("click", function (event) {
+  event.preventDefault();
+  if (waiting === "Line") {
+    line(firstX, firstY, Math.floor(event.offsetX / gridSize), Math.floor(event.offsetY / gridSize));
+    waiting = null;
+  } else {
+    waiting = "Line";
+    firstX = Math.floor(event.offsetX / gridSize);
+    firstY = Math.floor(event.offsetY / gridSize);
+    return;
+  }
+
+});
+
+</script>
+</body>
+
+</html>
