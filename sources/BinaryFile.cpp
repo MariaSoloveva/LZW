@@ -30,8 +30,8 @@ void CloseOutputBFile(BinaryFile* bfile)
 
 void CloseInputBFile (BinaryFile* bfile)
 {
-    fclose (bfile->file);
-    free ((char*)bfile);
+    fclose(bfile->file);
+    free((char*)bfile);
 }
 
 void WriteBit(BinaryFile* bfile, int bit)
@@ -52,7 +52,6 @@ void WriteBit(BinaryFile* bfile, int bit)
 void WriteBits(BinaryFile* bfile, ulong code, int count)
 {
     ulong mask;
-
     mask = 1L << (count - 1);
     while (mask != 0)
     {
@@ -79,7 +78,7 @@ int ReadBit(BinaryFile* bfile)
     {
         bfile->rack = getc(bfile->file);
         if (bfile->rack == EOF)
-            throw std::invalid_argument("Error in function ReadBit!\n");
+            return 257;
 
         if ((bfile->pacifier_counter++ & PACIFIER_COUNT) == 0)
             putc('.', stdout);
@@ -105,7 +104,7 @@ ulong ReadBits(BinaryFile* bfile, int bit_count)
         {
             bfile->rack = getc(bfile->file);
             if (bfile->rack == EOF)
-                throw std::invalid_argument("Error in function ReadBits!\n");
+                return 257;
 
             if ((bfile->pacifier_counter++ & PACIFIER_COUNT) == 0)
                 putc('.', stdout);
@@ -142,13 +141,11 @@ void find_compression_ratio(const char* input, const char* output)
     int ratio;
 
     input_size = file_size(input);
-    if ( input_size == 0 )
-        input_size = 1;
     output_size = file_size(output);
+    if (input_size == 0)
+        input_size = 1;
     ratio = 100 - (int)(output_size * 100L / input_size);
     printf("\nInput size:        %ld bytes\n", input_size);
     printf("Output size:       %ld bytes\n", output_size);
-    if (output_size == 0)
-        output_size = 1;
     printf("Ratio: %d%%\n", ratio);
 }
