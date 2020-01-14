@@ -26,14 +26,15 @@ void LZW::Compress(const std::string& input, const std::string& output)
 
         unsigned int next_code = FIRST_CODE;
         std::string fraze;
-        char character = 0;
+        int ch = 0;
+        std::string character;
         create_default_dictionary_string_to_ulong();
-        while ((character = getc(input_file)) != EOF) {
+        while ((ch = getc(input_file)) != EOF) {
+            character = char(ch);
             std::string word = fraze + character;
             if (dictionaryStoU.find(word) != dictionaryStoU.end()) {
                 fraze = word;
             } else {
-                auto c = (ulong)dictionaryStoU[fraze];
                 WriteBits(output_file, (ulong)dictionaryStoU[fraze], BITS);
                 if (next_code < MAX_CODE) {
                     dictionaryStoU[word] = next_code++;
